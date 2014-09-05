@@ -1,0 +1,33 @@
+loggenerator:
+  build: .
+  command: bash /tmp/start.sh
+  links:
+    - redis
+
+
+elasticsearch:
+  image: dockerfile/elasticsearch
+  ports:
+   - "9200:9200"
+
+kibana:
+  image: arcus/kibana
+  environment:
+    ES_SCHEME: "http"
+  ports:
+    - "8088:80"
+
+redis:
+  image: redis
+  ports:
+    - "6379:6379"
+
+logstash:
+  image: pblittle/docker-logstash
+  links:
+    - elasticsearch
+    - redis
+    - loggenerator
+  environment:
+    #LOGSTASH_CONFIG_URL: https://gist.githubusercontent.com/suxor42/45b33588c88b14f3ed12/raw/b02fa67bf41db0ef2fb7e33f1303b0d72135d2ec/esearch.conf
+    LOGSTASH_CONFIG_URL: http://loggenerator_1:5000/logstash.conf
